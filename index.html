@@ -138,8 +138,6 @@ h1 em{background:linear-gradient(90deg,#5B3FD1 0%,#B23FD1 35%,#FF6A3C 60%,#5B3FD
 </section>
 <div class="notice" role="note" id="notice"></div>
 <div class="sec"><h2>오늘의 딜</h2><small id="count"></small></div>
-<div id="hero"></div>
-<div class="sec" id="moreHead" hidden><h2>지난 추천</h2></div>
 <ul class="grid" id="grid"></ul>
 <div class="next"><b aria-hidden="true">🛋️</b><span>다음 딜은 글에서 먼저 알려드릴게요.<br>번호는 글이 올라온 순서예요.</span></div>
 <footer>품절·종료된 딜은 지우지 않고 아래로 내려요.</footer>
@@ -152,23 +150,16 @@ const DISCLOSE = {
 };
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const shown = PRODUCTS.filter(p => !p.hidden).sort((a,b)=>(a.soldout-b.soldout)||b.no.localeCompare(a.no));
+const shown = PRODUCTS.filter(p => !p.hidden).sort((a,b)=>(a.soldout-b.soldout)||a.no.localeCompare(b.no));
 $("notice").innerHTML = Array.from(new Set(shown.map(p => p.store))).map(s => DISCLOSE[s]).filter(Boolean).map(x => "<span>" + x + "</span>").join("");
 $("count").textContent = shown.length ? shown.length + "개" : "";
-const live = shown.filter(p => !p.soldout);
-const hero = live[0], rest = shown.filter(p => p !== hero);
 function link(p, cls, inner){
 var ready = p.link && !p.soldout;
 var el = document.createElement(ready ? "a" : "div"); el.className = cls; el.innerHTML = inner;
 if (ready){ el.href = p.link; el.target = "_blank"; el.rel = "sponsored noopener"; el.setAttribute("aria-label", p.no + " " + p.name + " " + p.store + "에서 보기"); }
 return el;
 }
-if (hero){
-var cta = hero.link ? '<div class="cta">' + esc(hero.store) + '에서 보기 <span aria-hidden="true">↗</span></div>' : '<div class="cta off">' + esc(hero.opens ? hero.opens + " 공개" : "공개 예정") + '</div>';
-$("hero").appendChild(link(hero, "hero", '<div class="stage"><img src="' + esc(hero.img) + '" alt="" width="360" height="360" referrerpolicy="no-referrer"></div><div class="body"><div class="no">NO.' + esc(hero.no) + '</div><p class="name">' + esc(hero.name) + '</p><p class="tag">' + esc(hero.tag) + '</p>' + cta + '</div>'));
-}
-$("moreHead").hidden = rest.length === 0;
-rest.forEach(function(p){
+shown.forEach(function(p){
 var li = document.createElement("li");
 li.appendChild(link(p, "card", '<div class="ph"><img src="' + esc(p.img) + '" alt="" width="360" height="360" loading="lazy" referrerpolicy="no-referrer"></div><div class="no">NO.' + esc(p.no) + (p.soldout ? " · 품절" : "") + '</div><p class="name">' + esc(p.name) + '</p>'));
 $("grid").appendChild(li);
